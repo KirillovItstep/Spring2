@@ -1,10 +1,10 @@
 package org.itstep.app3;
 
+import lombok.Getter;
 import org.itstep.app2.Person;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,4 +26,41 @@ public class PersonController {
         return "index";
     }
 
+    @GetMapping({"/","","index"})
+    public String getAllPersons(Model model){
+        model.addAttribute("persons", persons);
+        return "persons";
+    }
+
+    @PostMapping({"/",""})
+    public String createPerson(Model model, @ModelAttribute("person") Person person){
+        persons.add(person);
+        model.addAttribute("persons", persons);
+        return "/persons";
+    }
+
+    @PostMapping("/delete/{id}")
+    public String deletePerson(Model model, @PathVariable("id") Long id){
+        System.out.printf("delete %d%n",id);
+        Person person = persons.stream()
+                .filter(p->p.getId().equals(id))
+                .findFirst()
+                .orElse(null);
+        persons.remove(person);
+        model.addAttribute("persons", persons);
+        return "/persons";
+    }
+
+    @PostMapping("/update/{id}")
+    public String updatePerson(Model model, @PathVariable("id") Long id, @ModelAttribute("person") Person person){
+        Person personOld = persons.stream()
+                .filter(p->p.getId().equals(id))
+                .findFirst()
+                .orElse(null);
+        personOld.setId(person.getId());
+        personOld.setName(person.getName());
+        personOld.setSurname(person.getSurname());
+        model.addAttribute("persons", persons);
+        return "/persons";
+    }
 }
